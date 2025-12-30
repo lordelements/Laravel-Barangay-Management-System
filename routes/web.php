@@ -50,7 +50,7 @@ Route::middleware(['auth', 'admin'])
         Route::get('/residents/{resident}', [ResidentController::class, 'show'])->name('residents-show');
         Route::get('/residents/{resident}/edit', [ResidentController::class, 'edit'])->name('residents-edit');
         Route::put('/residents/{resident}', [ResidentController::class, 'update'])->name('residents-update');
-        Route::delete('/residents/{resident}', [ResidentController::class, 'destroy'])->name('residents-delete');
+        Route::delete('/residents/{resident}', [ResidentController::class, 'destroy'])->name('residents.destroy');
 
         // Brgy Officials Routes
         Route::get('/officials', [BrgyOfficialsController::class, 'index'])->name('officials-list');

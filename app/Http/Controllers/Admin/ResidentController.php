@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Resident as res;
+use App\Models\Resident;
 use Illuminate\Http\Request;
 use App\Services\ResidentService;
 
@@ -19,9 +19,9 @@ class ResidentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->residentService->indexFromRequest();
+        return $this->residentService->indexRequest($request);
     }
 
     /**
@@ -37,39 +37,50 @@ class ResidentController extends Controller
      */
     public function store(Request $request)
     {
-        $resident = new res();
-        return $this->residentService->storeFromRequest($request, $resident);
+        $this->residentService->storeRequest($request);
+        
+        return redirect()
+            ->route('admin.residents-list')
+            ->with('success', 'Resident added successfully.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(res $resident)
+    public function show(Resident $resident)
     {
-        //
+        return $this->residentService->showRequest($resident);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(res $resident)
-    {
-        //
-    }
+    // public function edit(Resident $resident)
+    // {
+    //     return $this->residentService->editRequest($resident);
+    // }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, res $resident)
+    public function update(Request $request, Resident $resident)
     {
-        //
+        $this->residentService->updateRequest($request, $resident);
+        
+        return redirect()
+            ->route('admin.residents-list')
+            ->with('success', 'Resident updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(res $resident)
+    public function destroy(Resident $resident)
     {
-        //
+         $this->residentService->deleteRequest($resident);
+        
+        return redirect()
+            ->route('admin.residents-list')
+            ->with('success', 'Resident deleted successfully.');
     }
 }

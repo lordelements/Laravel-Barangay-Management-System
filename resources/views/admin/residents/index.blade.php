@@ -11,21 +11,15 @@
             <div
                 class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4 border-b dark:border-gray-700">
                 <div class="w-full md:w-1/2">
-                    <form class="flex items-center">
-                        <label for="simple-search" class="sr-only">Search residents</label>
+                    <!-- <form method="GET" action="{{ route('admin.residents-list') }}" class="flex items-center">
                         <div class="relative w-full">
-                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
-                            <input type="text" id="simple-search"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                placeholder="Search by name or email..." required="">
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                class="bg-gray-50 border border-gray-300 text-sm rounded-lg pl-10 p-2.5 w-full"
+                                placeholder="Search by name or email...">
                         </div>
-                    </form>
+                    </form> -->
+                    <input id="myInput" class="bg-gray-50 border-gray-300 text-sm rounded-lg pl-10 p-2.5 w-full"
+                        type="text" placeholder="Search by ID, Name, Address, Contact Number, and etc.">
                 </div>
                 <div
                     class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
@@ -55,7 +49,7 @@
                         </tr>
                     </thead>
 
-                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id='myTable'>
                         @foreach ($residents as $resident)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                             <th scope="row"
@@ -72,7 +66,7 @@
                                 class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                 <div class="flex flex-col">
                                     <span class="text-base">{{ $resident->first_name }}, {{ $resident->middle_name }},
-                                        {{ $resident->last_name }}</span>
+                                        {{ $resident->last_name }}, {{ $resident->suffix }}</span>
                                     <span
                                         class="text-xs text-gray-400 font-normal italic">{{ $resident->civil_status }}</span>
                                 </div>
@@ -100,7 +94,8 @@
                             <td class="px-6 py-4 text-center">
                                 <span
                                     class="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-900/30
-                                     dark:text-blue-300 text-xs font-bold ring-1 ring-inset ring-blue-700/10">{{ $resident->voter_status }}</span>
+                                     dark:text-blue-300 text-xs font-bold ring-1 ring-inset ring-blue-700/10">{{ Str::replace('_', ' ', ucfirst($resident->voter_status)) }}
+                                </span>
                             </td>
                             <td class="px-6 py-4">
                                 <span
@@ -108,20 +103,50 @@
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex justify-end gap-2">
+                                    <!-- <a href="{{ route('admin.residents-edit', $resident->id) }}"
+                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                    </a> -->
+
                                     <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                        title="Edit Profile">
+                                        onclick="openEditModal(this)" data-resident='@json($resident)'
+                                        title="Edit Resident">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                         </svg>
                                     </button>
-                                    <button class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                        title="Remove Record">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+
+
+
+                                    <form method="POST" action="{{ route('admin.residents.destroy', $resident->id) }}">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button type="submit"
+                                            class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                            title="Remove Record">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </form>
+
+                                    <a href="{{ route('admin.residents-show', $resident->id) }}"
+                                        class="p-2 text-sky-800 hover:bg-blue-50 rounded-lg transition-colors">
+                                        <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                            width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-width="2"
+                                                d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z" />
+                                            <path stroke="currentColor" stroke-width="2"
+                                                d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                         </svg>
-                                    </button>
+
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -132,19 +157,20 @@
 
             <div
                 class="p-4 bg-gray-50 dark:bg-gray-700/50 border-t dark:border-gray-700 flex justify-between items-center">
-                <p class="text-xs text-gray-500 uppercase tracking-wider font-bold">Total Registered Residents: 1,240
+
+                <p class="text-xs text-gray-500 uppercase tracking-wider font-bold">
+                    Total Registered Residents: {{ $residents->total() }}
                 </p>
-                <div class="flex gap-2">
-                    <button
-                        class="px-3 py-1 text-xs font-medium border rounded bg-white hover:bg-gray-50 text-gray-700">Prev</button>
-                    <button
-                        class="px-3 py-1 text-xs font-medium border rounded bg-white hover:bg-gray-50 text-gray-700">Next</button>
+
+                <div>
+                    {{ $residents->links() }}
                 </div>
             </div>
+
         </div>
     </div>
 
-    <!-- Main modal -->
+    <!-- Add Resident modal -->
     <div id="default-modal" tabindex="-1" aria-hidden="true"
         class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-x-hidden overflow-y-auto bg-gray-900/70 backdrop-blur-sm transition-opacity">
 
@@ -325,16 +351,19 @@
                                 <div class="grid md:grid-cols-2 gap-5">
                                     <div>
                                         <label
-                                            class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Occupation</label>
-                                        <textarea name="occupation" rows="2" placeholder="Occupation details..."
+                                            class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Resident
+                                            Details
+                                            additional info
+                                        </label>
+                                        <textarea name="description" rows="2" placeholder="Additonal details..."
                                             class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none resize-none"></textarea>
                                     </div>
-                                    <div>
+                                    <!-- <div>
                                         <label
                                             class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Remarks</label>
                                         <textarea name="description" rows="2" placeholder="Additional notes..."
                                             class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none resize-none"></textarea>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </section>
@@ -356,6 +385,254 @@
             </div>
         </div>
     </div>
+    <!-- End of Form -->
+
+    <!-- Edit Resident Modal -->
+    <div id="edit-modal" tabindex="-1" aria-hidden="true"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-x-hidden overflow-y-auto bg-gray-900/70 backdrop-blur-sm transition-opacity">
+
+        <div class="relative w-full max-w-5xl max-h-full">
+            <div
+                class="relative bg-white rounded-2xl shadow-2xl dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+                <div class="bg-gradient-to-r from-blue-700 to-blue-800 p-6 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-extrabold text-white flex items-center tracking-tight">
+                            <svg class="w-7 h-7 mr-3 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Edit Resident Profile
+                        </h3>
+                        <p class="text-blue-100 text-sm mt-1 opacity-80">Update the existing information for this
+                            resident.</p>
+                    </div>
+                    <button type="button" onclick="closeEditModal()"
+                        class="text-blue-100 bg-white/10 hover:bg-white/20 hover:text-white rounded-full text-sm p-2 transition-all">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form id="editResidentForm" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" name="resident_id" id="edit_id">
+
+                    <div class="p-8 space-y-8 overflow-y-auto max-h-[75vh] scrollbar-thin scrollbar-thumb-gray-300">
+
+                        <section>
+                            <h4
+                                class="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
+                                Personal Information</h4>
+                            <div class="grid md:grid-cols-4 gap-5">
+                                <div>
+                                    <label
+                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">First
+                                        Name</label>
+                                    <input id="edit_first_name" name="first_name" type="text" required
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Middle
+                                        Name</label>
+                                    <input id="edit_middle_name" name="middle_name" type="text"
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Last
+                                        Name</label>
+                                    <input id="edit_last_name" name="last_name" type="text" required
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Suffix</label>
+                                    <select id="edit_suffix" name="suffix"
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                        <option value="">None</option>
+                                        <option value="jr">Jr.</option>
+                                        <option value="sr">Sr.</option>
+                                        <option value="ii">II</option>
+                                        <option value="iii">III</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-4 gap-5 mt-5">
+                                <div>
+                                    <label
+                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Gender</label>
+                                    <select id="edit_gender" name="gender"
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Civil
+                                        Status</label>
+                                    <select id="edit_civil_status" name="civil_status"
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                        <option value="single">Single</option>
+                                        <option value="married">Married</option>
+                                        <option value="widowed">Widowed</option>
+                                        <option value="separated">Separated</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-2">
+                                    <label
+                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Update
+                                        Profile Picture</label>
+                                    <input type="file" accept="image/*" name="photo"
+                                        class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                                </div>
+                            </div>
+                        </section>
+
+                        <section>
+                            <h4
+                                class="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
+                                Birth & Identity</h4>
+                            <div class="grid md:grid-cols-4 gap-5">
+                                <div>
+                                    <label
+                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Age</label>
+                                    <input id="edit_age" name="age" type="number" required
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Birthday</label>
+                                    <input id="edit_birthdate" name="birthdate" type="date" required
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                </div>
+                                <div class="col-span-2">
+                                    <label
+                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Birth
+                                        Place</label>
+                                    <input id="edit_birthplace" name="birthplace" type="text"
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-3 gap-5 mt-5">
+                                <div>
+                                    <label
+                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Email
+                                        Address</label>
+                                    <input id="edit_email" name="email" type="email" required
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Contact
+                                        Number</label>
+                                    <input id="edit_phone" name="phone_number" type="tel" required
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Voter
+                                        Status</label>
+                                    <select id="edit_voter_status" name="voter_status"
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                        <option value="registered_voter">Registered Voter</option>
+                                        <option value="non_voter">Non-Voter</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section>
+                            <h4
+                                class="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
+                                Location & Career</h4>
+                            <div class="space-y-5">
+                                <div>
+                                    <label
+                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Purok
+                                        Address</label>
+                                    <input id="edit_street" name="street" type="text" required
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                </div>
+                                <div class="grid md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label
+                                            class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Resident
+                                            additional info</label>
+                                        <textarea id="edit_occupation" name="description" rows="2"
+                                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none resize-none"></textarea>
+                                    </div>
+                                    <!-- <div>
+                                        <label
+                                            class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Remarks</label>
+                                        <textarea id="edit_description" name="description" rows="2"
+                                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none resize-none"></textarea>
+                                    </div> -->
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div
+                        class="flex items-center justify-end p-6 space-x-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+                        <button type="button" onclick="closeEditModal()"
+                            class="px-6 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all dark:bg-gray-700 dark:text-gray-300">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="px-10 py-2.5 text-sm font-bold text-white bg-blue-700 rounded-lg hover:bg-blue-800 shadow-lg shadow-blue-500/20 transition-all transform active:scale-95">
+                            Update Resident Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End Edit Modal -->
+
+
 
 </section>
+
+<script>
+function openEditModal(button) {
+    const resident = JSON.parse(button.getAttribute('data-resident'));
+
+    document.getElementById('edit-modal').classList.remove('hidden');
+
+    document.getElementById('editResidentForm').action =
+        `/admin/residents/${resident.id}`;
+
+    document.getElementById('edit_first_name').value = resident.first_name;
+    document.getElementById('edit_middle_name').value = resident.middle_name ?? '';
+    document.getElementById('edit_last_name').value = resident.last_name;
+    document.getElementById('edit_email').value = resident.email;
+    document.getElementById('edit_phone').value = resident.phone_number;
+    document.getElementById('edit_age').value = resident.age;
+    document.getElementById('edit_birthdate').value = resident.birthdate;
+    document.getElementById('edit_street').value = resident.street;
+}
+
+function closeEditModal() {
+    document.getElementById('edit-modal').classList.add('hidden');
+}
+
+// Search Functionality  
+$(document).ready(function() {
+    $("#myInput").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#myTable tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+});
+</script>
+
 @endsection
