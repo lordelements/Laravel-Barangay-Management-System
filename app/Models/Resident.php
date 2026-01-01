@@ -22,5 +22,11 @@ class Resident extends Model
         'voter_status',
         'description',
         'photo',
+        'purok_id',
     ];
+
+    public function purok()
+    {
+        return $this->belongsTo(Purok::class);
+    }
 }

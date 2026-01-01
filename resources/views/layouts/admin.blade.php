@@ -14,6 +14,8 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
 </head>
 
 <body class="bg-gray-100 flex h-screen overflow-hidden dark:bg-gray-900 text-gray-800 dark:text-gray-200">
@@ -27,8 +29,25 @@
         {{-- Topbar --}}
         @include('admin.partials.topbar')
 
+
         {{-- SCROLLABLE CONTENT --}}
         <main class="flex-1 overflow-y-auto p-6">
+
+            @if(session('alert'))
+            <x-alert :type="session('alert.type')" :message="session('alert.message')" />
+            @endif
+
+            @if ($errors->any())
+            <x-alert type="danger">
+                <ul class="list-disc ms-4">
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </x-alert>
+            @endif
+
+
             @yield('content')
         </main>
 

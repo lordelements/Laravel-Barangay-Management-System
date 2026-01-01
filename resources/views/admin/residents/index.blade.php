@@ -87,10 +87,13 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <p class="max-w-[200px] truncate" title="123 Mahogany St. Barangay San Jose">
-                                    {{ $resident->street }}
-                                </p>
+                                <div class="flex flex-col">
+                                    <span class="text-xs text-gray-500 italic">
+                                        {{ $resident->purok?->street ?? 'N/A' }}
+                                    </span>
+                                </div>
                             </td>
+
                             <td class="px-6 py-4 text-center">
                                 <span
                                     class="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-900/30
@@ -342,11 +345,23 @@
                                 Location & Career</h4>
                             <div class="space-y-5">
                                 <div>
-                                    <label
+                                    <!-- <label
                                         class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Purok
                                         Address</label>
                                     <input name="street" type="text" required placeholder="House No., Street, Purok..."
-                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none"> -->
+                                    <label class="block mb-1.5 text-xs font-bold uppercase text-gray-500">
+                                        Purok / Zone
+                                    </label>
+
+                                    <select name="purok_id" id="purokSelect" required
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm">
+                                        <option value="">Select Purok</option>
+                                        @foreach ($puroks as $purok)
+                                        <option value="{{ $purok->id }}">{{ $purok->street }}</option>
+                                        @endforeach
+                                    </select>
+
                                 </div>
                                 <div class="grid md:grid-cols-2 gap-5">
                                     <div>
@@ -597,8 +612,6 @@
     </div>
     <!-- End Edit Modal -->
 
-
-
 </section>
 
 <script>
@@ -617,6 +630,7 @@ function openEditModal(button) {
     document.getElementById('edit_phone').value = resident.phone_number;
     document.getElementById('edit_age').value = resident.age;
     document.getElementById('edit_birthdate').value = resident.birthdate;
+    document.getElementById('edit_birthplace').value = resident.birthplace;
     document.getElementById('edit_street').value = resident.street;
 }
 

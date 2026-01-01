@@ -16,8 +16,37 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+        brand: {
+          softer: '#EEF2FF',
+          medium: '#6366F1',
         },
+        danger: {
+          soft: '#FEE2E2',
+          medium: '#EF4444',
+        },
+        success: {
+          soft: '#DCFCE7',
+          medium: '#22C55E',
+        },
+        warning: {
+          soft: '#FEF3C7',
+          medium: '#F59E0B',
+        },
+      fg: {
+        brand: {
+          strong: '#1E3A8A',
+        },
+        danger: {
+          strong: '#991B1B',
+        },
+        success: {
+          strong: '#14532D',
+        },
+      },
     },
+          },
+      },
 
     plugins: [
         forms,

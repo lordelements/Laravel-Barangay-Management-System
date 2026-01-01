@@ -102,7 +102,8 @@
                             <div class="sm:col-span-2">
                                 <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest">Address
                                     (Purok/Street)</label>
-                                <p class="mt-1 text-gray-900 dark:text-white font-semibold">{{ $resident->street }}</p>
+                                <p class="mt-1 text-gray-900 dark:text-white font-semibold">
+                                    {{ $resident->purok?->street ?? 'N/A' }}</p>
                             </div>
                         </div>
                     </div>

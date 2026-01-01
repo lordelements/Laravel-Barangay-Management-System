@@ -15,7 +15,7 @@ class ResidentController extends Controller
     {
         $this->residentService = $residentService;
     }
-    
+
     /**
      * Display a listing of the resource.
      */
@@ -24,24 +24,30 @@ class ResidentController extends Controller
         return $this->residentService->indexRequest($request);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $this->residentService->storeRequest($request);
-        
+        $result = $this->residentService->storeRequest($request);
+
+        if ($result) {
+            return redirect()
+                ->route('admin.residents-list')
+                ->with('alert', [
+                    'type' => 'success',
+                    'message' => 'Resident added successfully.'
+                ]);
+        }
+
         return redirect()
-            ->route('admin.residents-list')
-            ->with('success', 'Resident added successfully.');
+            ->back()
+            ->withInput()
+            ->with('alert', [
+                'type' => 'danger',
+                'message' => 'Failed to add resident. Please try again.'
+            ]);
     }
 
     /**
@@ -65,11 +71,25 @@ class ResidentController extends Controller
      */
     public function update(Request $request, Resident $resident)
     {
-        $this->residentService->updateRequest($request, $resident);
+        $result = $this->residentService->updateRequest($request, $resident);
+
+        if ($result) {
+            return redirect()
+            ->route('admin.residents-list')
+            ->with('alert', [
+                'type' => 'success',
+                'message' => 'Resident information updated successfully!'
+            ]);
+        }
+        
         
         return redirect()
-            ->route('admin.residents-list')
-            ->with('success', 'Resident updated successfully.');
+            ->back()
+            ->withInput()
+            ->with('alert', [
+                'type' => 'danger',
+                'message' => 'Failed to update resident. Please try again.'
+            ]);
     }
 
     /**
@@ -77,10 +97,23 @@ class ResidentController extends Controller
      */
     public function destroy(Resident $resident)
     {
-         $this->residentService->deleteRequest($resident);
+        $result = $this->residentService->deleteRequest($resident);
+
+        if ($result) {
+           return redirect()
+            ->route('admin.residents-list')
+            ->with('alert', [
+                'type' => 'success',
+                'message' => 'Resident information deleted successfully.'
+            ]);
+            
+        }
         
         return redirect()
-            ->route('admin.residents-list')
-            ->with('success', 'Resident deleted successfully.');
+            ->back()
+            ->with('alert', [
+                'type' => 'danger',
+                'message' => 'Failed to delete resident. Please try again.'
+            ]);
     }
 }

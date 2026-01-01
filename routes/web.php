@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ResidentController;
 use App\Http\Controllers\Admin\BrgyOfficialsController;
 use App\Http\Controllers\Admin\InsidentsReportController;
+use App\Http\Controllers\Admin\PurokController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -67,6 +68,11 @@ Route::middleware(['auth', 'admin'])
         Route::get('/reports/{report}/edit', [InsidentsReportController::class, 'edit'])->name('reports-edit');
         Route::put('/reports/{report}', [InsidentsReportController::class, 'update'])->name('reports-update');
         Route::delete('/reports/{report}', [InsidentsReportController::class, 'destroy'])->name('reports-delete');
+
+        // Adding Purok/Streets
+        Route::get('/streets', [PurokController::class, 'index'])->name('streets-list');
+        Route::post('/streets', [PurokController::class, 'store'])->name('puroks.store');
+        Route::delete('/streets', [PurokController::class, 'destroy'])->name('puroks.destroy');
 });
 
 
