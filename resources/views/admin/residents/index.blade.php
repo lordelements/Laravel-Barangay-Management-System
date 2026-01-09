@@ -124,7 +124,6 @@
                                     </button>
 
 
-
                                     <form method="POST" action="{{ route('admin.residents.destroy', $resident->id) }}">
                                         @csrf
                                         @method('DELETE')
@@ -288,12 +287,12 @@
                                 class="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
                                 Birth & Identity</h4>
                             <div class="grid md:grid-cols-4 gap-5">
-                                <div>
+                                <!-- <div>
                                     <label
                                         class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Age</label>
                                     <input name="age" type="number" required
                                         class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
-                                </div>
+                                </div> -->
                                 <div>
                                     <label
                                         class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Birthday</label>
@@ -518,7 +517,7 @@
                                 <div>
                                     <label
                                         class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Age</label>
-                                    <input id="edit_age" name="age" type="number" required
+                                    <input id="edit_age" name="age" type="number" required readonly
                                         class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
                                 </div>
                                 <div>
@@ -542,7 +541,8 @@
                                         class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Email
                                         Address</label>
                                     <input id="edit_email" name="email" type="email" required
-                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg 
+                                        focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
                                 </div>
                                 <div>
                                     <label
@@ -570,11 +570,17 @@
                                 Location & Career</h4>
                             <div class="space-y-5">
                                 <div>
-                                    <label
-                                        class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Purok
-                                        Address</label>
-                                    <input id="edit_street" name="street" type="text" required
-                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none">
+                                    <label class="block mb-1.5 text-xs font-bold uppercase text-gray-500">
+                                        Purok / Zone
+                                    </label>
+
+                                    <select name="purok_id" id="edit_purok_id" required
+                                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm">
+                                        <option value="">Select Purok</option>
+                                        @foreach ($puroks as $purok)
+                                        <option value="{{ $purok->id }}">{{ $purok->street }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="grid md:grid-cols-2 gap-5">
                                     <div>
@@ -584,12 +590,6 @@
                                         <textarea id="edit_occupation" name="description" rows="2"
                                             class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none resize-none"></textarea>
                                     </div>
-                                    <!-- <div>
-                                        <label
-                                            class="block mb-1.5 text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Remarks</label>
-                                        <textarea id="edit_description" name="description" rows="2"
-                                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-sm rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none resize-none"></textarea>
-                                    </div> -->
                                 </div>
                             </div>
                         </section>
@@ -631,7 +631,8 @@ function openEditModal(button) {
     document.getElementById('edit_age').value = resident.age;
     document.getElementById('edit_birthdate').value = resident.birthdate;
     document.getElementById('edit_birthplace').value = resident.birthplace;
-    document.getElementById('edit_street').value = resident.street;
+    document.getElementById('edit_occupation').value = resident.description;
+    document.getElementById('edit_purok_id').value = resident.purok_id;
 }
 
 function closeEditModal() {

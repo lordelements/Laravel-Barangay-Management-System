@@ -4,15 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Purok extends Model
+class BrgyCommitteePosition extends Model
 {
-    protected $fillable = ['street'];
-
-    public function residents()
-    {
-        return $this->hasMany(Resident::class);
-    }
-
+    protected $table = 'committee_position';
+    protected $fillable = ['committee_name'];
+    
     public function brgyOfficial()
     {
         return $this->hasMany(BrgyOfficials::class);

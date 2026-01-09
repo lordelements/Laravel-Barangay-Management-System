@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use Exception;
 
 class ResidentService
@@ -32,44 +33,52 @@ class ResidentService
         return view('admin.residents.index', compact('residents', 'puroks'));
     }
 
-
     public function storeRequest(Request $request)
     {
         DB::beginTransaction();
 
-    try {
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'suffix' => 'nullable|in:jr,sr,ii,iii,iv,v',
-            'email' => 'nullable|email|unique:residents,email',
-            'phone_number' => 'nullable|string|max:20',
-            'age' => 'nullable|integer|min:0|max:150',
-            'birthdate' => 'nullable|date',
-            'birthplace' => 'nullable|string|max:255',
-            // 'street' => 'nullable|string|max:255',
-            'gender' => 'nullable|in:male,female',
-            'civil_status' => 'nullable|in:single,married,widowed,separated',
-            'voter_status' => 'nullable|in:registered_voter,non_voter',
-            'description' => 'nullable|string|max:255',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'purok_id'   => 'nullable|string|max:255',
-        ]);
+        try {
+            $validated = $request->validate([
+                'first_name' => 'required|string|max:255',
+                'middle_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'suffix' => 'nullable|in:jr,sr,ii,iii,iv,v',
+                'email' => 'nullable|email|unique:residents,email',
+                'phone_number' => 'nullable|string|max:20',
+                'birthdate' => 'nullable|date|before:today',
+                'birthplace' => 'nullable|string|max:255',
+                'gender' => 'nullable|in:male,female',
+                'civil_status' => 'nullable|in:single,married,widowed,separated',
+                'voter_status' => 'nullable|in:registered_voter,non_voter',
+                'description' => 'nullable|string|max:255',
+                'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'purok_id'   => 'nullable|string|max:255',
+            ]);
 
-        if ($request->hasFile('photo')) {
-            $validated['photo'] = $request->file('photo')
-                ->store('residents', 'public');
-        }
+            /** NORMALIZE ENUM FIELDS */
+            foreach (['gender', 'civil_status', 'suffix', 'voter_status'] as $field) {
+                if (!empty($validated[$field])) {
+                    $validated[$field] = strtolower($validated[$field]);
+                }
+            }
 
-        Resident::create($validated);
+            /** AUTO AGE */
+            if (!empty($validated['birthdate'])) {
+                $validated['age'] = Carbon::parse($validated['birthdate'])->age;
+            }
 
-        DB::commit();
-        return true;
+            if ($request->hasFile('photo')) {
+                $validated['photo'] = $request->file('photo')
+                    ->store('residents', 'public');
+            }
 
-        } catch (Exception $e) {
+            Resident::create($validated);
+
+            DB::commit();
+            return true;
+        } catch (\Throwable $e) {
             DB::rollBack();
-            return false;
+            throw $e;
         }
     }
 
@@ -78,46 +87,58 @@ class ResidentService
         return view('admin.residents.show', compact('resident'));
     }
 
-    // public function editRequest(Resident $resident)
-    // {
-    //     return view('admin.residents.edit', compact('resident'));
-    // }
-
     public function updateRequest(Request $request, Resident $resident)
     {
         $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'suffix' => 'nullable|in:jr,sr,ii,iii,iv,v',
+            'first_name'     => 'required|string|max:255',
+            'middle_name'    => 'required|string|max:255',
+            'last_name'      => 'required|string|max:255',
+            'suffix'         => 'nullable|in:jr,sr,ii,iii,iv,v',
 
-            'email' => 'nullable|email|unique:residents,email,' . $resident->id,
-            'phone_number' => 'nullable|string|max:20',
+            'email'          => 'nullable|email|unique:residents,email,' . $resident->id,
+            'phone_number'   => 'nullable|string|max:20',
 
-            'age' => 'nullable|integer|min:0|max:150',
-            'birthdate' => 'nullable|date',
-            'birthplace' => 'nullable|string|max:255',
-            'street' => 'nullable|string|max:255',
+            'birthdate'      => 'nullable|date|before:today',
+            'birthplace'     => 'nullable|string|max:255',
+            'purok_id'       => 'nullable|string|max:255',
 
-            'gender' => 'nullable|in:male,female',
-            'civil_status' => 'nullable|in:single,married,widowed,separated',
-            'voter_status' => 'nullable|in:registered_voter,non_voter',
+            'gender'         => 'nullable|in:male,female',
+            'civil_status'   => 'nullable|in:single,married,widowed,separated',
+            'voter_status'   => 'nullable|in:registered_voter,non_voter',
 
-            'description' => 'nullable|string|max:255',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'description'    => 'nullable|string|max:255',
+            'photo'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // UPDATE PHOTO USING STORAGE
+        /** NORMALIZE ENUM FIELDS */
+        foreach (['gender', 'civil_status', 'suffix', 'voter_status'] as $field) {
+            if (!empty($validated[$field])) {
+                $validated[$field] = strtolower($validated[$field]);
+            }
+        }
+
+        /** AUTO AGE */
+        if (!empty($validated['birthdate'])) {
+            $validated['age'] = Carbon::parse($validated['birthdate'])->age;
+        }
+
+        /** UPDATE PHOTO */
         if ($request->hasFile('photo')) {
             if ($resident->photo && Storage::disk('public')->exists($resident->photo)) {
                 Storage::disk('public')->delete($resident->photo);
             }
+
             $validated['photo'] = $request->file('photo')
                 ->store('residents', 'public');
         }
 
-        $resident->update($validated);
+        DB::transaction(function () use ($resident, $validated) {
+            $resident->update($validated);
+        });
+
+        return true;
     }
+
 
     public function deleteRequest(Resident $resident)
     {

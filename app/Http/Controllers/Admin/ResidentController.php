@@ -30,24 +30,19 @@ class ResidentController extends Controller
      */
     public function store(Request $request)
     {
-        $result = $this->residentService->storeRequest($request);
+        try {
+            $this->residentService->storeRequest($request);
 
-        if ($result) {
-            return redirect()
-                ->route('admin.residents-list')
-                ->with('alert', [
-                    'type' => 'success',
-                    'message' => 'Resident added successfully.'
-                ]);
-        }
-
-        return redirect()
-            ->back()
-            ->withInput()
-            ->with('alert', [
-                'type' => 'danger',
-                'message' => 'Failed to add resident. Please try again.'
+            return redirect()->back()->with('alert', [
+                'type' => 'success',
+                'message' => 'Resident added successfully.'
             ]);
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('alert', [
+                'type' => 'danger',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -71,25 +66,23 @@ class ResidentController extends Controller
      */
     public function update(Request $request, Resident $resident)
     {
-        $result = $this->residentService->updateRequest($request, $resident);
 
-        if ($result) {
+        try {
+            $this->residentService->updateRequest($request, $resident);
+
             return redirect()
-            ->route('admin.residents-list')
-            ->with('alert', [
-                'type' => 'success',
-                'message' => 'Resident information updated successfully!'
+                ->route('admin.residents-list')
+                ->with('alert', [
+                    'type' => 'success',
+                    'message' => 'Resident information updated successfully!'
+                ]);
+        } catch (\Throwable $e) {
+
+            return redirect()->back()->withInput()->with('alert', [
+                'type' => 'danger',
+                'message' => $e->getMessage()
             ]);
         }
-        
-        
-        return redirect()
-            ->back()
-            ->withInput()
-            ->with('alert', [
-                'type' => 'danger',
-                'message' => 'Failed to update resident. Please try again.'
-            ]);
     }
 
     /**
@@ -100,15 +93,14 @@ class ResidentController extends Controller
         $result = $this->residentService->deleteRequest($resident);
 
         if ($result) {
-           return redirect()
-            ->route('admin.residents-list')
-            ->with('alert', [
-                'type' => 'success',
-                'message' => 'Resident information deleted successfully.'
-            ]);
-            
+            return redirect()
+                ->route('admin.residents-list')
+                ->with('alert', [
+                    'type' => 'success',
+                    'message' => 'Resident information deleted successfully.'
+                ]);
         }
-        
+
         return redirect()
             ->back()
             ->with('alert', [
