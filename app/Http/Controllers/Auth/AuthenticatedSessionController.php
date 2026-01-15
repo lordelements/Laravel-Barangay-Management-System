@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Services\AuditTrailService;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -28,6 +29,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        AuditTrailService::log(
+            'LOGIN',
+            'Authentication',
+            ['message' => 'User logged in']
+        );
 
         return redirect()->intended(
             Auth::user()->role === 'admin'
@@ -46,6 +52,12 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
+
+        AuditTrailService::log(
+            'LOGOUT',
+            'Authentication',
+            ['message' => 'User logged out']
+        );
 
         return redirect('/');
     }

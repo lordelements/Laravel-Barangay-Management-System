@@ -90,9 +90,9 @@ class ResidentController extends Controller
      */
     public function destroy(Resident $resident)
     {
-        $result = $this->residentService->deleteRequest($resident);
+        $deleted = $this->residentService->deleteRequest($resident);
 
-        if ($result) {
+        if ($deleted) {
             return redirect()
                 ->route('admin.residents-list')
                 ->with('alert', [
@@ -108,4 +108,15 @@ class ResidentController extends Controller
                 'message' => 'Failed to delete resident. Please try again.'
             ]);
     }
+
+    // public function destroy(Resident $resident)
+    // {
+    //     $deleted = $this->residentService->deleteRequest($resident);
+
+    //     if ($deleted) {
+    //         return redirect()->back()->with('success', 'Resident deleted successfully.');
+    //     } else {
+    //         return redirect()->back()->with('error', 'Failed to delete resident. Please try again.');
+    //     }
+    // }
 }

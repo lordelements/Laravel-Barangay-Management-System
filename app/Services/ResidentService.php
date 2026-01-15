@@ -8,8 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Exception;
+use App\Services\AuditTrailService;
 
 class ResidentService
 {
@@ -140,8 +142,42 @@ class ResidentService
     }
 
 
-    public function deleteRequest(Resident $resident)
+    // public function deleteRequest(Resident $resident)
+    // {
+    //     // Deleting a resident
+    //     $oldData = $resident->toArray();
+    //     $resident->delete();
+
+    //     AuditTrailService::log(
+    //         'Residents',                  // activity
+    //         'Record deleted',             // description
+    //         $oldData,                     // old values
+    //         null                          // new values
+    //     );
+
+    //     return true;
+    // }
+
+    public function deleteRequest(Resident $resident): bool
     {
-        $resident->delete();
+        try {
+            $oldData = $resident->toArray(); // capture data before deletion
+
+            $resident->delete(); // delete the record
+
+            // Log deletion
+            AuditTrailService::log(
+                'Residents',
+                'Record deleted',
+                $oldData,
+                null
+            );
+
+            return true; // indicate success
+        } catch (\Exception $e) {
+            // Optionally log error
+            Log::error('Resident delete failed: ' . $e->getMessage());
+            return false; // indicate failure
+        }
     }
 }

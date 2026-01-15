@@ -45,4 +45,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    protected function AuditTrail()
+    {
+        return $this->hasMany(AuditTrail::class);
+    }
+
 }

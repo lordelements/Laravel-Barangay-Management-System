@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CommitteePositionController;
 use App\Http\Controllers\Admin\InsidentsReportController;
 use App\Http\Controllers\Admin\PurokController;
 use App\Http\Controllers\Admin\CertificateController;
+use App\Http\Controllers\Admin\AuditTrailController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -100,6 +101,9 @@ Route::middleware(['auth', 'admin'])
         Route::get('/certificates/{certificate}/edit', [CertificateController::class, 'edit'])->name('certificates-edit');
         Route::put('/certificates/{certificate}', [CertificateController::class, 'update'])->name('certificates-update');
         Route::delete('/certificates/{certificate}', [CertificateController::class, 'destroy'])->name('certificates-delete');
+
+        // Audit Trails Routes  
+        Route::get('/audit-trails', [AuditTrailController::class, 'index'])->name('visitors-logs');
 });
 
 

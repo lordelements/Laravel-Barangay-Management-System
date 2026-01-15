@@ -167,6 +167,12 @@
                         Brgy Committee Position
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.visitors-logs') }}"
+                        class="block px-4 py-2 text-sm rounded hover:text-indigo-600 dark:hover:text-indigo-400 text-gray-500 transition-colors">
+                        Visitors Log
+                    </a>
+                </li>
             </ul>
         </li>
     </ul>
